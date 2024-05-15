@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 15, 2024 at 11:02 AM
+-- Generation Time: May 15, 2024 at 11:11 AM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 8.1.10
 
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS `flight` (
   `airport_destination` text NOT NULL,
   `capacity` int(11) NOT NULL,
   `start_datetime` datetime NOT NULL,
-  `end_datetime` int(11) NOT NULL,
+  `end_datetime` datetime NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
 
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `flight` (
 --
 
 INSERT INTO `flight` (`id`, `airport_destination`, `capacity`, `start_datetime`, `end_datetime`) VALUES
-(1, 'Russian Airport', 30, '2024-05-15 18:00:00', 2024);
+(1, 'Russian Airport', 30, '2024-05-15 18:00:00', '2024-05-15 20:00:00');
 
 -- --------------------------------------------------------
 
