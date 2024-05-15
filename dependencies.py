@@ -139,7 +139,7 @@ class DatabaseWrapper:
     
     def get_ticket(self, id):
         cursor = self.connection.cursor(dictionary=True)
-        sql = f"SELECT * FROM ticket WHERE id = {id}"
+        sql = f"SELECT t.id, f.airport_destination, f.price, t.start_datetime, t.end_datetime FROM `ticket` as t inner join flight f on t.flight_type = f.id WHERE t.id = {id}"
         try:
             cursor.execute(sql)
             result = cursor.fetchone()
@@ -162,6 +162,70 @@ class DatabaseWrapper:
         finally:
             cursor.close()
         return response
+
+    def add_flight(self, airport_destination, capacity, price):
+        cursor = self.connection.cursor(dictionary=True)
+        sql = f"INSERT INTO `flight`(`airport_destination`, `capacity`, `price`) VALUES ('{airport_destination}','{capacity}','{price}')"
+        try:
+            cursor.execute(sql)
+            self.connection.commit()
+            response = {
+                "status": "success",
+                "message": "Room added successfully",
+                "data": {
+                    "airport_destination": airport_destination,
+                    "capacity": capacity,
+                    "price": price
+                }
+            }
+        except Exception as e:
+            response = {
+                "status": str(e)
+            }
+        finally:
+            cursor.close()
+        return response
+
+
+    def get_all_flights(self):
+        cursor = self.connection.cursor(dictionary=True)
+        result = []
+        sql = "SELECT * FROM `flight`"
+        cursor.execute(sql)
+        for row in cursor.fetchall():
+            result.append({
+                'id': row['id'],
+                'airport_destination': row['airport_destination'],
+                'capacity': row['capacity'],
+                'price': row['price']
+            })
+        cursor.close()
+        return result
+    
+    def get_flight(self, id):
+        cursor = self.connection.cursor(dictionary=True)
+        sql = f"SELECT * FROM `flight` WHERE id = {id}"
+        try:
+            cursor.execute(sql)
+            result = cursor.fetchone()
+            if result:
+                response = {
+                    "status": "success",
+                    "data": result
+                }
+            else:
+                response = {
+                    "status": "not_found",
+                    "message": f"ticket with id {id} not found"
+                }
+        except Exception as e:
+            response = {
+                "status": str(e)
+            }
+        finally:
+            cursor.close()
+        return response
+
 
     def __del__(self):
         self.connection.close()

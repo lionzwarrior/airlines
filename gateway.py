@@ -47,11 +47,11 @@ class GatewayService:
     @http('POST', '/ticket')
     def add_ticket(self, request):
         json_file = request.get_json()
-        reservation = self.airline_rpc.add_reservation(json_file["flight_type"], json_file["start_datetime"], json_file["end_datetime"])
-        if reservation["status"] == "success":
-            return 201, json.dumps(reservation)
+        ticket = self.airline_rpc.add_ticket(json_file["flight_type"], json_file["start_datetime"], json_file["end_datetime"])
+        if ticket["status"] == "success":
+            return 201, json.dumps(ticket)
         else:
-            return 400, json.dumps(reservation)
+            return 400, json.dumps(ticket)
 
     @http('GET', '/ticket')
     def get_all_tickets(self, request):
@@ -67,3 +67,27 @@ class GatewayService:
             return 404, json.dumps(ticket)
         else:
             return 400, json.dumps(ticket)
+    
+    @http('POST', '/flight')
+    def add_flight(self, request):
+        json_file = request.get_json()
+        flight = self.airline_rpc.add_flight(json_file["airport_destination"], json_file["capacity"], json_file["price"])
+        if flight["status"] == "success":
+            return 201, json.dumps(flight)
+        else:
+            return 400, json.dumps(flight)
+
+    @http('GET', '/flight')
+    def get_all_flights(self, request):
+        flights = self.airline_rpc.get_all_flights()
+        return 200, json.dumps(flights)
+
+    @http('GET', '/flight/<int:id>')
+    def get_flight(self, request, id):
+        flight = self.airline_rpc.get_flight(id)
+        if flight["status"] == "success":
+            return 200, json.dumps(flight)
+        elif flight["status"] == "not_found":
+            return 404, json.dumps(flight)
+        else:
+            return 400, json.dumps(flight)

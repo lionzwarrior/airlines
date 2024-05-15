@@ -42,3 +42,18 @@ class AirLineService:
     def get_ticket(self, id):
         ticket = self.database.get_ticket(id)
         return ticket
+    
+    @rpc
+    def add_flight(self, airport_destination, capacity, price):
+        ticket = self.database.add_flight(airport_destination, capacity, price)
+        return ticket
+    
+    @rpc
+    def get_all_flights(self):
+        tickets = self.database.get_all_flights()
+        return tickets
+
+    @rpc
+    def get_flight(self, id):
+        ticket = self.database.get_flight(id)
+        return ticket
