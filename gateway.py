@@ -11,7 +11,7 @@ class GatewayService:
     airline_rpc = RpcProxy('airline_service')
     
     @http('POST', '/reservation')
-    def add_reservation(self, request, ticket_id):
+    def add_reservation(self, request):
         json_file = request.get_json()
         reservation = self.airline_rpc.add_reservation(json_file["ticket_id"])
         if reservation["status"] == "success":
@@ -45,9 +45,9 @@ class GatewayService:
             return 400, json.dumps(reservation)
         
     @http('POST', '/ticket')
-    def add_ticket(self, request, ticket_type, start_datetime, end_datetime):
+    def add_ticket(self, request):
         json_file = request.get_json()
-        reservation = self.airline_rpc.add_reservation(json_file["ticket_type"], json_file["start_datetime"], json_file["end_datetime"])
+        reservation = self.airline_rpc.add_reservation(json_file["flight_type"], json_file["start_datetime"], json_file["end_datetime"])
         if reservation["status"] == "success":
             return 201, json.dumps(reservation)
         else:

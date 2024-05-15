@@ -29,8 +29,8 @@ class AirLineService:
         return reservation
     
     @rpc
-    def add_ticket(self, ticket_type, start_datetime, end_datetime):
-        ticket = self.database.add_ticket(ticket_type, start_datetime, end_datetime)
+    def add_ticket(self, flight_type, start_datetime, end_datetime):
+        ticket = self.database.add_ticket(flight_type, start_datetime, end_datetime)
         return ticket
     
     @rpc

@@ -11,9 +11,9 @@ class DatabaseWrapper:
     def __init__(self, connection):
         self.connection = connection
 
-    def add_ticket(self, ticket_id):
+    def add_reservation(self, ticket_id):
         cursor = self.connection.cursor(dictionary=True)
-        sql = f"INSERT INTO `ticket`(`ticket_id`) VALUES ({ticket_id})"
+        sql = f"INSERT INTO `reservation`(`ticket_id`) VALUES ({ticket_id})"
         try:
             cursor.execute(sql)
             self.connection.commit()
@@ -33,36 +33,36 @@ class DatabaseWrapper:
         return response
 
 
-    def get_all_tickets(self):
+    def get_all_reservations(self):
         cursor = self.connection.cursor(dictionary=True)
-        reservation = []
-        sql = "SELECT * FROM ticket"
+        result = []
+        sql = "SELECT * FROM reservation"
         cursor.execute(sql)
         for row in cursor.fetchall():
-            reservation.append({
+            result.append({
                 'id': row['id'],
                 'ticket_id': row['ticket_id'],
                 'timestamp': row['timestamp'].strftime("%Y-%m-%d %H:%M:%S"),
             })
         cursor.close()
-        return reservation
+        return result
     
-    def get_ticket(self, id):
+    def get_reservation(self, id):
         cursor = self.connection.cursor(dictionary=True)
-        sql = f"SELECT * FROM ticket WHERE id = {id}"
+        sql = f"SELECT * FROM reservation WHERE id = {id}"
         try:
             cursor.execute(sql)
-            reservation = cursor.fetchone()
-            reservation['timestamp'] = reservation['timestamp'].strftime("%Y-%m-%d %H:%M:%S")
-            if reservation:
+            result = cursor.fetchone()
+            result['timestamp'] = result['timestamp'].strftime("%Y-%m-%d %H:%M:%S")
+            if result:
                 response = {
                     "status": "success",
-                    "data": reservation
+                    "data": result
                 }
             else:
                 response = {
                     "status": "not_found",
-                    "message": f"Ticket with id {id} not found"
+                    "message": f"reservation with id {id} not found"
                 }
         except Exception as e:
             response = {
@@ -72,9 +72,9 @@ class DatabaseWrapper:
             cursor.close()
         return response
 
-    def delete_ticket(self, id):
+    def delete_reservation(self, id):
         cursor = self.connection.cursor(dictionary=True)
-        sql = f"DELETE FROM ticket WHERE id = {id}"
+        sql = f"DELETE FROM reservation WHERE id = {id}"
         try:
             cursor.execute(sql)
             self.connection.commit()
@@ -82,12 +82,12 @@ class DatabaseWrapper:
             if rows_deleted == 0:
                 response = {
                     "status": "not_found",
-                    "message": f"Ticket with id {id} not found"
+                    "message": f"reservation with id {id} not found"
                 }
             else:
                 response = {
                     "status": "success",
-                    "message": f"Ticket with id {id} deleted successfully"
+                    "message": f"reservation with id {id} deleted successfully"
                 }
         except Exception as e:
             response = {
@@ -97,9 +97,9 @@ class DatabaseWrapper:
             cursor.close()
         return response
 
-    def add_ticket(self, ticket_type, start_datetime, end_datetime):
+    def add_ticket(self, flight_type, start_datetime, end_datetime):
         cursor = self.connection.cursor(dictionary=True)
-        sql = f"INSERT INTO `ticket`(`ticket_type`, `start_datetime`, `end_datetime`) VALUES ('{ticket_type}','{start_datetime}','{end_datetime}')"
+        sql = f"INSERT INTO `ticket`(`flight_type`, `start_datetime`, `end_datetime`) VALUES ('{flight_type}','{start_datetime}','{end_datetime}')"
         try:
             cursor.execute(sql)
             self.connection.commit()
@@ -107,7 +107,7 @@ class DatabaseWrapper:
                 "status": "success",
                 "message": "Room added successfully",
                 "data": {
-                    "ticket_type": ticket_type,
+                    "flight_type": flight_type,
                     "start_datetime": start_datetime,
                     "end_datetime": end_datetime
                 }
@@ -123,30 +123,32 @@ class DatabaseWrapper:
 
     def get_all_tickets(self):
         cursor = self.connection.cursor(dictionary=True)
-        reservation = []
-        sql = "SELECT * FROM ticket"
+        result = []
+        sql = "SELECT t.id, f.airport_destination, f.price, t.start_datetime, t.end_datetime FROM `ticket` as t inner join flight f on t.flight_type = f.id"
         cursor.execute(sql)
         for row in cursor.fetchall():
-            reservation.append({
+            result.append({
                 'id': row['id'],
-                'ticket_type': row['ticket_type'],
+                'airport_destination': row['airport_destination'],
+                'price': row['price'],
                 'start_datetime': row['start_datetime'].strftime("%Y-%m-%d %H:%M:%S"),
                 'end_datetime': row['end_datetime'].strftime("%Y-%m-%d %H:%M:%S")
             })
         cursor.close()
-        return reservation
+        return result
     
     def get_ticket(self, id):
         cursor = self.connection.cursor(dictionary=True)
         sql = f"SELECT * FROM ticket WHERE id = {id}"
         try:
             cursor.execute(sql)
-            reservation = cursor.fetchone()
-            reservation['timestamp'] = reservation['timestamp'].strftime("%Y-%m-%d %H:%M:%S")
-            if reservation:
+            result = cursor.fetchone()
+            result['start_datetime'] = result['start_datetime'].strftime("%Y-%m-%d %H:%M:%S")
+            result['end_datetime'] = result['end_datetime'].strftime("%Y-%m-%d %H:%M:%S")
+            if result:
                 response = {
                     "status": "success",
-                    "data": reservation
+                    "data": result
                 }
             else:
                 response = {
