@@ -36,7 +36,7 @@ class DatabaseWrapper:
     def get_all_reservations(self):
         cursor = self.connection.cursor(dictionary=True)
         result = []
-        sql = "SELECT r.id, c.name AS class, ao.name AS airport_origin, ad.name AS airport_destination, t.start_datetime, t.end_datetime, r.timestamp FROM `reservation` r INNER JOIN ticket t ON r.ticket_id = t.id INNER JOIN flight f ON t.flight_type = f.id INNER JOIN class c ON f.class_type = c.id INNER JOIN airport ao ON f.airport_origin = ao.id INNER JOIN airport ad ON f.airport_destination = ad.id"
+        sql = "SELECT r.id, c.name AS class, ao.name AS airport_origin, ad.name AS airport_destination, f.weight_limit, t.start_datetime, t.end_datetime, r.timestamp FROM `reservation` r INNER JOIN ticket t ON r.ticket_id = t.id INNER JOIN flight f ON t.flight_type = f.id INNER JOIN class c ON f.class_type = c.id INNER JOIN airport ao ON f.airport_origin = ao.id INNER JOIN airport ad ON f.airport_destination = ad.id"
         cursor.execute(sql)
         for row in cursor.fetchall():
             result.append({
@@ -44,6 +44,7 @@ class DatabaseWrapper:
                 'class': row['class'],
                 'airport_origin': row['airport_origin'],
                 'airport_destination': row['airport_destination'],
+                'weight_limit': row['weight_limit'],
                 'start_datetime': row['start_datetime'].strftime("%Y-%m-%d %H:%M:%S"),
                 'end_datetime': row['end_datetime'].strftime("%Y-%m-%d %H:%M:%S"),
                 'timestamp': row['timestamp'].strftime("%Y-%m-%d %H:%M:%S"),
@@ -53,7 +54,7 @@ class DatabaseWrapper:
     
     def get_reservation(self, id):
         cursor = self.connection.cursor(dictionary=True)
-        sql = f"SELECT r.id, c.name AS class, ao.name AS airport_origin, ad.name AS airport_destination, t.start_datetime, t.end_datetime, r.timestamp FROM `reservation` r INNER JOIN ticket t ON r.ticket_id = t.id INNER JOIN flight f ON t.flight_type = f.id INNER JOIN class c ON f.class_type = c.id INNER JOIN airport ao ON f.airport_origin = ao.id INNER JOIN airport ad ON f.airport_destination = ad.id WHERE r.id = {id}"
+        sql = f"SELECT r.id, c.name AS class, ao.name AS airport_origin, ad.name AS airport_destination, f.weight_limit, t.start_datetime, t.end_datetime, r.timestamp FROM `reservation` r INNER JOIN ticket t ON r.ticket_id = t.id INNER JOIN flight f ON t.flight_type = f.id INNER JOIN class c ON f.class_type = c.id INNER JOIN airport ao ON f.airport_origin = ao.id INNER JOIN airport ad ON f.airport_destination = ad.id WHERE r.id = {id}"
         try:
             cursor.execute(sql)
             result = cursor.fetchone()
@@ -155,7 +156,7 @@ class DatabaseWrapper:
     def get_all_tickets(self):
         cursor = self.connection.cursor(dictionary=True)
         result = []
-        sql = "SELECT t.id, c.name AS class, ao.name AS airport_origin, ad.name AS airport_destination, f.price, t.start_datetime, t.end_datetime FROM `ticket` AS t INNER JOIN flight f ON t.flight_type = f.id INNER JOIN class c ON f.class_type = c.id INNER JOIN airport ao ON f.airport_origin = ao.id INNER JOIN airport ad ON f.airport_destination = ad.id"
+        sql = "SELECT t.id, c.name AS class, ao.name AS airport_origin, ad.name AS airport_destination, f.weight_limit, f.price, t.start_datetime, t.end_datetime FROM `ticket` AS t INNER JOIN flight f ON t.flight_type = f.id INNER JOIN class c ON f.class_type = c.id INNER JOIN airport ao ON f.airport_origin = ao.id INNER JOIN airport ad ON f.airport_destination = ad.id"
         cursor.execute(sql)
         for row in cursor.fetchall():
             result.append({
@@ -163,6 +164,7 @@ class DatabaseWrapper:
                 'class': row['class'],
                 'airport_orign': row['airport_origin'],
                 'airport_destination': row['airport_destination'],
+                'weight_limit': row['weight_limit'],
                 'price': row['price'],
                 'start_datetime': row['start_datetime'].strftime("%Y-%m-%d %H:%M:%S"),
                 'end_datetime': row['end_datetime'].strftime("%Y-%m-%d %H:%M:%S")
@@ -172,7 +174,7 @@ class DatabaseWrapper:
     
     def get_ticket(self, id):
         cursor = self.connection.cursor(dictionary=True)
-        sql = f"SELECT t.id, c.name AS class, ao.name AS airport_origin, ad.name AS airport_destination, f.price, t.start_datetime, t.end_datetime FROM `ticket` AS t INNER JOIN flight f ON t.flight_type = f.id INNER JOIN class c ON f.class_type = c.id INNER JOIN airport ao ON f.airport_origin = ao.id INNER JOIN airport ad ON f.airport_destination = ad.id WHERE t.id = {id}"
+        sql = f"SELECT t.id, c.name AS class, ao.name AS airport_origin, ad.name AS airport_destination, f.weight_limit, f.price, t.start_datetime, t.end_datetime FROM `ticket` AS t INNER JOIN flight f ON t.flight_type = f.id INNER JOIN class c ON f.class_type = c.id INNER JOIN airport ao ON f.airport_origin = ao.id INNER JOIN airport ad ON f.airport_destination = ad.id WHERE t.id = {id}"
         try:
             cursor.execute(sql)
             result = cursor.fetchone()
@@ -275,9 +277,9 @@ class DatabaseWrapper:
             cursor.close()
         return response
 
-    def add_flight(self, class_type, airport_origin, airport_destination, capacity, price):
+    def add_flight(self, class_type, airport_origin, airport_destination, capacity, weight_limit, price):
         cursor = self.connection.cursor(dictionary=True)
-        sql = f"INSERT INTO `flight`(`class_type`, `airport_origin`, `airport_destination`, `capacity`, `price`) VALUES ('{class_type}', '{airport_origin}', '{airport_destination}','{capacity}','{price}')"
+        sql = f"INSERT INTO `flight`(`class_type`, `airport_origin`, `airport_destination`, `capacity`, `weight_limit`, `price`) VALUES ('{class_type}', '{airport_origin}', '{airport_destination}','{capacity}', '{weight_limit}', '{price}')"
         try:
             cursor.execute(sql)
             self.connection.commit()
@@ -289,6 +291,7 @@ class DatabaseWrapper:
                     "airport_origin": airport_origin,
                     "airport_destination": airport_destination,
                     "capacity": capacity,
+                    "weight_limit": weight_limit,
                     "price": price
                 }
             }
@@ -304,7 +307,7 @@ class DatabaseWrapper:
     def get_all_flights(self):
         cursor = self.connection.cursor(dictionary=True)
         result = []
-        sql = "SELECT f.id, c.name AS class, ao.name AS airport_origin, ad.name AS airport_destination, f.capacity, f.price FROM `flight` f INNER JOIN class c ON f.class_type = c.id INNER JOIN airport ao ON f.airport_origin = ao.id INNER JOIN airport ad ON f.airport_destination = ad.id"
+        sql = "SELECT f.id, c.name AS class, ao.name AS airport_origin, ad.name AS airport_destination, f.capacity, f.weight_limit, f.price FROM `flight` f INNER JOIN class c ON f.class_type = c.id INNER JOIN airport ao ON f.airport_origin = ao.id INNER JOIN airport ad ON f.airport_destination = ad.id"
         cursor.execute(sql)
         for row in cursor.fetchall():
             result.append({
@@ -313,6 +316,7 @@ class DatabaseWrapper:
                 'airport_origin': row['airport_origin'],
                 'airport_destination': row['airport_destination'],
                 'capacity': row['capacity'],
+                'weight_limit': row['weight_limit'],
                 'price': row['price']
             })
         cursor.close()
@@ -320,7 +324,7 @@ class DatabaseWrapper:
     
     def get_flight(self, id):
         cursor = self.connection.cursor(dictionary=True)
-        sql = f"SELECT f.id, c.name, ao.name AS airport_origin, ad.name AS airport_destination, f.capacity, f.price FROM `flight` f INNER JOIN class c ON f.class_type = c.id INNER JOIN airport ao ON f.airport_origin = ao.id INNER JOIN airport ad ON f.airport_destination = ad.id WHERE f.id = {id}"
+        sql = f"SELECT f.id, c.name, ao.name AS airport_origin, ad.name AS airport_destination, f.capacity, f.weight_limit, f.price FROM `flight` f INNER JOIN class c ON f.class_type = c.id INNER JOIN airport ao ON f.airport_origin = ao.id INNER JOIN airport ad ON f.airport_destination = ad.id WHERE f.id = {id}"
         try:
             cursor.execute(sql)
             result = cursor.fetchone()
@@ -342,9 +346,9 @@ class DatabaseWrapper:
             cursor.close()
         return response
 
-    def edit_flight(self, id, class_type, airport_origin, airport_destination, capacity, price):
+    def edit_flight(self, id, class_type, airport_origin, airport_destination, capacity, weight_limit, price):
         cursor = self.connection.cursor(dictionary=True)
-        sql = f"UPDATE `flight` SET `class_type`='{class_type}',`airport_origin`='{airport_origin}',`airport_destination`='{airport_destination}',`capacity`='{capacity}',`price`='{price}' WHERE id = {id}"
+        sql = f"UPDATE `flight` SET `class_type`='{class_type}',`airport_origin`='{airport_origin}',`airport_destination`='{airport_destination}',`capacity`='{capacity}',`weight_limit`='{weight_limit}',`price`='{price}' WHERE id = {id}"
         try:
             cursor.execute(sql)
             self.connection.commit()

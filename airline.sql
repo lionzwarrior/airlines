@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 15, 2024 at 05:06 PM
+-- Generation Time: May 15, 2024 at 05:28 PM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 8.1.10
 
@@ -83,6 +83,7 @@ CREATE TABLE IF NOT EXISTS `flight` (
   `airport_origin` int(11) NOT NULL,
   `airport_destination` int(11) NOT NULL,
   `capacity` int(11) NOT NULL,
+  `weight_limit` int(11) NOT NULL,
   `price` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `class_fk` (`class_type`),
@@ -94,9 +95,9 @@ CREATE TABLE IF NOT EXISTS `flight` (
 -- Dumping data for table `flight`
 --
 
-INSERT INTO `flight` (`id`, `class_type`, `airport_origin`, `airport_destination`, `capacity`, `price`) VALUES
-(1, 1, 1, 3, 50, 2000000),
-(2, 2, 2, 4, 30, 1500000);
+INSERT INTO `flight` (`id`, `class_type`, `airport_origin`, `airport_destination`, `capacity`, `weight_limit`, `price`) VALUES
+(1, 1, 1, 3, 50, 25, 2000000),
+(2, 2, 2, 4, 30, 23, 1500000);
 
 -- --------------------------------------------------------
 

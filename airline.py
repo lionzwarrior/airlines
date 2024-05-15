@@ -64,8 +64,8 @@ class AirLineService:
         return ticket
     
     @rpc
-    def add_flight(self, class_type, airport_origin, airport_destination, capacity, price):
-        flight = self.database.add_flight(class_type, airport_origin, airport_destination, capacity, price)
+    def add_flight(self, class_type, airport_origin, airport_destination, capacity, weight_limit, price):
+        flight = self.database.add_flight(class_type, airport_origin, airport_destination, capacity, weight_limit, price)
         return flight
     
     @rpc
@@ -79,8 +79,8 @@ class AirLineService:
         return flight
     
     @rpc
-    def edit_flight(self, id, class_type, airport_origin, airport_destination, capacity, price):
-        flight = self.database.edit_flight(id, class_type, airport_origin, airport_destination, capacity, price)
+    def edit_flight(self, id, class_type, airport_origin, airport_destination, capacity, weight_limit, price):
+        flight = self.database.edit_flight(id, class_type, airport_origin, airport_destination, capacity, weight_limit, price)
         return flight
     
     @rpc

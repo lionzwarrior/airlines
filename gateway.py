@@ -113,7 +113,7 @@ class GatewayService:
     @http('POST', '/flight')
     def add_flight(self, request):
         json_file = request.get_json()
-        flight = self.airline_rpc.add_flight(json_file['class_type'], json_file["airport_origin"], json_file["airport_destination"], json_file["capacity"], json_file["price"])
+        flight = self.airline_rpc.add_flight(json_file['class_type'], json_file["airport_origin"], json_file["airport_destination"], json_file["capacity"], json_file['weight_limit'], json_file["price"])
         if flight["status"] == "success":
             return 201, json.dumps(flight)
         else:
@@ -137,7 +137,7 @@ class GatewayService:
     @http('PUT', '/flight/<int:id>')
     def edit_flight(self, request, id):
         json_file = request.get_json()
-        flight = self.airline_rpc.edit_flight(id, json_file['class_type'], json_file['airport_origin'], json_file['airport_destination'], json_file['capacity'], json_file['price'])
+        flight = self.airline_rpc.edit_flight(id, json_file['class_type'], json_file['airport_origin'], json_file['airport_destination'], json_file['capacity'], json_file['weight_limit'], json_file['price'])
         if flight["status"] == "success":
             return 200, json.dumps(flight)
         elif flight["status"] == "not_found":
