@@ -163,6 +163,35 @@ class DatabaseWrapper:
         finally:
             cursor.close()
         return response
+    
+    def check_ticket(self, id):
+        cursor = self.connection.cursor(dictionary=True)
+        sql = f"SELECT f.capacity - (SELECT COUNT(*) FROM reservation r WHERE r.ticket_id = t.id) AS count FROM `ticket` t INNER JOIN flight f ON t.flight_type = f.id WHERE t.id = {id} GROUP BY t.id;"
+        try:
+            cursor.execute(sql)
+            result = cursor.fetchone()
+            if result['count'] > 0:
+                response = {
+                    "status": "available",
+                    "data": result
+                }
+            elif result['count'] <= 0:
+                response = {
+                    "status": "unavailable",
+                    "data": result
+                }
+            else:
+                response = {
+                    "status": "not_found",
+                    "message": f"ticket with id {id} not found"
+                }
+        except Exception as e:
+            response = {
+                "status": str(e)
+            }
+        finally:
+            cursor.close()
+        return response
 
     def add_flight(self, airport_origin, airport_destination, capacity, price):
         cursor = self.connection.cursor(dictionary=True)
