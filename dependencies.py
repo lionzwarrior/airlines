@@ -11,9 +11,9 @@ class DatabaseWrapper:
     def __init__(self, connection):
         self.connection = connection
 
-    def add_ticket(self, flight_id):
+    def add_ticket(self, ticket_id):
         cursor = self.connection.cursor(dictionary=True)
-        sql = f"INSERT INTO `ticket`(`flight_id`) VALUES ({flight_id})"
+        sql = f"INSERT INTO `ticket`(`ticket_id`) VALUES ({ticket_id})"
         try:
             cursor.execute(sql)
             self.connection.commit()
@@ -21,7 +21,7 @@ class DatabaseWrapper:
                 "status": "success",
                 "message": "Room added successfully",
                 "data": {
-                    "flight_id": flight_id,
+                    "ticket_id": ticket_id,
                 }
             }
         except Exception as e:
@@ -35,29 +35,29 @@ class DatabaseWrapper:
 
     def get_all_tickets(self):
         cursor = self.connection.cursor(dictionary=True)
-        result = []
+        reservation = []
         sql = "SELECT * FROM ticket"
         cursor.execute(sql)
         for row in cursor.fetchall():
-            result.append({
+            reservation.append({
                 'id': row['id'],
-                'flight_id': row['flight_id'],
+                'ticket_id': row['ticket_id'],
                 'timestamp': row['timestamp'].strftime("%Y-%m-%d %H:%M:%S"),
             })
         cursor.close()
-        return result
+        return reservation
     
     def get_ticket(self, id):
         cursor = self.connection.cursor(dictionary=True)
         sql = f"SELECT * FROM ticket WHERE id = {id}"
         try:
             cursor.execute(sql)
-            result = cursor.fetchone()
-            result['timestamp'] = result['timestamp'].strftime("%Y-%m-%d %H:%M:%S")
-            if result:
+            reservation = cursor.fetchone()
+            reservation['timestamp'] = reservation['timestamp'].strftime("%Y-%m-%d %H:%M:%S")
+            if reservation:
                 response = {
                     "status": "success",
-                    "data": result
+                    "data": reservation
                 }
             else:
                 response = {
@@ -88,6 +88,70 @@ class DatabaseWrapper:
                 response = {
                     "status": "success",
                     "message": f"Ticket with id {id} deleted successfully"
+                }
+        except Exception as e:
+            response = {
+                "status": str(e)
+            }
+        finally:
+            cursor.close()
+        return response
+
+    def add_ticket(self, ticket_type, start_datetime, end_datetime):
+        cursor = self.connection.cursor(dictionary=True)
+        sql = f"INSERT INTO `ticket`(`ticket_type`, `start_datetime`, `end_datetime`) VALUES ('{ticket_type}','{start_datetime}','{end_datetime}')"
+        try:
+            cursor.execute(sql)
+            self.connection.commit()
+            response = {
+                "status": "success",
+                "message": "Room added successfully",
+                "data": {
+                    "ticket_type": ticket_type,
+                    "start_datetime": start_datetime,
+                    "end_datetime": end_datetime
+                }
+            }
+        except Exception as e:
+            response = {
+                "status": str(e)
+            }
+        finally:
+            cursor.close()
+        return response
+
+
+    def get_all_tickets(self):
+        cursor = self.connection.cursor(dictionary=True)
+        reservation = []
+        sql = "SELECT * FROM ticket"
+        cursor.execute(sql)
+        for row in cursor.fetchall():
+            reservation.append({
+                'id': row['id'],
+                'ticket_type': row['ticket_type'],
+                'start_datetime': row['start_datetime'].strftime("%Y-%m-%d %H:%M:%S"),
+                'end_datetime': row['end_datetime'].strftime("%Y-%m-%d %H:%M:%S")
+            })
+        cursor.close()
+        return reservation
+    
+    def get_ticket(self, id):
+        cursor = self.connection.cursor(dictionary=True)
+        sql = f"SELECT * FROM ticket WHERE id = {id}"
+        try:
+            cursor.execute(sql)
+            reservation = cursor.fetchone()
+            reservation['timestamp'] = reservation['timestamp'].strftime("%Y-%m-%d %H:%M:%S")
+            if reservation:
+                response = {
+                    "status": "success",
+                    "data": reservation
+                }
+            else:
+                response = {
+                    "status": "not_found",
+                    "message": f"ticket with id {id} not found"
                 }
         except Exception as e:
             response = {
