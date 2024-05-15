@@ -124,11 +124,12 @@ class DatabaseWrapper:
     def get_all_tickets(self):
         cursor = self.connection.cursor(dictionary=True)
         result = []
-        sql = "SELECT t.id, f.airport_destination, f.price, t.start_datetime, t.end_datetime FROM `ticket` as t inner join flight f on t.flight_type = f.id"
+        sql = "SELECT t.id, f.airport_origin, f.airport_destination, f.price, t.start_datetime, t.end_datetime FROM `ticket` as t inner join flight f on t.flight_type = f.id"
         cursor.execute(sql)
         for row in cursor.fetchall():
             result.append({
                 'id': row['id'],
+                'airport_orign': row['airport_origin'],
                 'airport_destination': row['airport_destination'],
                 'price': row['price'],
                 'start_datetime': row['start_datetime'].strftime("%Y-%m-%d %H:%M:%S"),
@@ -139,7 +140,7 @@ class DatabaseWrapper:
     
     def get_ticket(self, id):
         cursor = self.connection.cursor(dictionary=True)
-        sql = f"SELECT t.id, f.airport_destination, f.price, t.start_datetime, t.end_datetime FROM `ticket` as t inner join flight f on t.flight_type = f.id WHERE t.id = {id}"
+        sql = f"SELECT t.id, f.airport_origin, f.airport_destination, f.price, t.start_datetime, t.end_datetime FROM `ticket` as t inner join flight f on t.flight_type = f.id WHERE t.id = {id}"
         try:
             cursor.execute(sql)
             result = cursor.fetchone()
@@ -163,9 +164,9 @@ class DatabaseWrapper:
             cursor.close()
         return response
 
-    def add_flight(self, airport_destination, capacity, price):
+    def add_flight(self, airport_origin, airport_destination, capacity, price):
         cursor = self.connection.cursor(dictionary=True)
-        sql = f"INSERT INTO `flight`(`airport_destination`, `capacity`, `price`) VALUES ('{airport_destination}','{capacity}','{price}')"
+        sql = f"INSERT INTO `flight`('airport_origin', `airport_destination`, `capacity`, `price`) VALUES ('{airport_origin}', '{airport_destination}','{capacity}','{price}')"
         try:
             cursor.execute(sql)
             self.connection.commit()
@@ -173,6 +174,7 @@ class DatabaseWrapper:
                 "status": "success",
                 "message": "Room added successfully",
                 "data": {
+                    "airport_origin": airport_origin,
                     "airport_destination": airport_destination,
                     "capacity": capacity,
                     "price": price
@@ -195,6 +197,7 @@ class DatabaseWrapper:
         for row in cursor.fetchall():
             result.append({
                 'id': row['id'],
+                'airport_origin': row['airport_origin'],
                 'airport_destination': row['airport_destination'],
                 'capacity': row['capacity'],
                 'price': row['price']

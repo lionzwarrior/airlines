@@ -71,7 +71,7 @@ class GatewayService:
     @http('POST', '/flight')
     def add_flight(self, request):
         json_file = request.get_json()
-        flight = self.airline_rpc.add_flight(json_file["airport_destination"], json_file["capacity"], json_file["price"])
+        flight = self.airline_rpc.add_flight(json_file["airport_origin"], json_file["airport_destination"], json_file["capacity"], json_file["price"])
         if flight["status"] == "success":
             return 201, json.dumps(flight)
         else:
