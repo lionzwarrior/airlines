@@ -78,16 +78,6 @@ class GatewayService:
             return 404, json.dumps(ticket)
         else:
             return 400, json.dumps(ticket)
-    
-    @http('GET', '/ticket/<int:id>/check')
-    def check_ticket(self, request, id):
-        ticket = self.airline_rpc.check_ticket(id)
-        if ticket["status"] == "available" or ticket["status"] == "available":
-            return 200, json.dumps(ticket)
-        elif ticket["status"] == "not_found":
-            return 404, json.dumps(ticket)
-        else:
-            return 400, json.dumps(ticket)
         
     @http('PUT', '/ticket/<int:id>')
     def edit_ticket(self, request, id):

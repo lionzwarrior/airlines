@@ -13,17 +13,31 @@ class DatabaseWrapper:
 
     def add_reservation(self, ticket_id):
         cursor = self.connection.cursor(dictionary=True)
-        sql = f"INSERT INTO `reservation`(`ticket_id`) VALUES ({ticket_id})"
+        sql = f"SELECT f.capacity - (SELECT COUNT(*) FROM reservation r WHERE r.ticket_id = t.id) AS count FROM `ticket` t INNER JOIN flight f ON t.flight_type = f.id WHERE t.id = {ticket_id} GROUP BY t.id"
         try:
             cursor.execute(sql)
-            self.connection.commit()
-            response = {
-                "status": "success",
-                "message": "Reservation added successfully",
-                "data": {
-                    "ticket_id": ticket_id,
+            result = cursor.fetchone()
+            if result['count'] > 0:
+                sql = f"INSERT INTO `reservation`(`ticket_id`) VALUES ({ticket_id})"
+                cursor.execute(sql)
+                self.connection.commit()
+                response = {
+                    "status": "success",
+                    "message": "Reservation added successfully",
+                    "data": {
+                        "ticket_id": ticket_id,
+                    }
                 }
-            }
+            elif result['count'] <= 0:
+                response = {
+                    "status": "unavailable",
+                    "data": result
+                }
+            else:
+                response = {
+                    "status": "not_found",
+                    "message": f"ticket with id {id} not found"
+                }
         except Exception as e:
             response = {
                 "status": str(e)
@@ -183,35 +197,6 @@ class DatabaseWrapper:
             if result:
                 response = {
                     "status": "success",
-                    "data": result
-                }
-            else:
-                response = {
-                    "status": "not_found",
-                    "message": f"ticket with id {id} not found"
-                }
-        except Exception as e:
-            response = {
-                "status": str(e)
-            }
-        finally:
-            cursor.close()
-        return response
-    
-    def check_ticket(self, id):
-        cursor = self.connection.cursor(dictionary=True)
-        sql = f"SELECT f.capacity - (SELECT COUNT(*) FROM reservation r WHERE r.ticket_id = t.id) AS count FROM `ticket` t INNER JOIN flight f ON t.flight_type = f.id WHERE t.id = {id} GROUP BY t.id"
-        try:
-            cursor.execute(sql)
-            result = cursor.fetchone()
-            if result['count'] > 0:
-                response = {
-                    "status": "available",
-                    "data": result
-                }
-            elif result['count'] <= 0:
-                response = {
-                    "status": "unavailable",
                     "data": result
                 }
             else:

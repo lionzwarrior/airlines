@@ -59,11 +59,6 @@ class AirLineService:
         return ticket
     
     @rpc
-    def check_ticket(self, id):
-        ticket = self.database.check_ticket(id)
-        return ticket
-    
-    @rpc
     def add_flight(self, class_type, airport_origin, airport_destination, capacity, weight_limit, price):
         flight = self.database.add_flight(class_type, airport_origin, airport_destination, capacity, weight_limit, price)
         return flight
