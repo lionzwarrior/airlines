@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 06, 2024 at 09:22 AM
+-- Generation Time: Jun 10, 2024 at 11:46 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -33,34 +33,24 @@ DROP TABLE IF EXISTS `airport`;
 CREATE TABLE IF NOT EXISTS `airport` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` text NOT NULL,
+  `location_code` text NOT NULL,
+  `city_name` text NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `airport`
 --
 
-INSERT INTO `airport` (`id`, `name`) VALUES
-(1, 'Jakarta Airport'),
-(2, 'Juanda Airport'),
-(3, 'Russian Airport'),
-(4, 'German Airport'),
-(5, 'Chinese Airport'),
-(6, 'America Airport');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `chair_number`
---
-
-DROP TABLE IF EXISTS `chair_number`;
-CREATE TABLE IF NOT EXISTS `chair_number` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` text NOT NULL,
-  `flight_id` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+INSERT INTO `airport` (`id`, `name`, `location_code`, `city_name`) VALUES
+(1, 'Metropolitan Area', 'JKT', 'Jakarta'),
+(2, 'Soekarno-Hatta Intl', 'CGK', 'Jakarta'),
+(3, 'Halim Perdanakusuma', 'HLP', 'Jakarta'),
+(4, 'Adisutjipto', 'JOG', 'Yogyakarta'),
+(5, 'New Yogyakarta Int.', 'YIA', 'Yogyakarta'),
+(6, 'Bali Airport', 'BLC', 'Bali'),
+(7, 'Bali Airport', 'BAJ', 'Bali'),
+(8, 'Ngurah Rai', 'DPS', 'Denpasar-Bali');
 
 -- --------------------------------------------------------
 
@@ -80,9 +70,8 @@ CREATE TABLE IF NOT EXISTS `class` (
 --
 
 INSERT INTO `class` (`id`, `name`) VALUES
-(1, 'First Class'),
-(2, 'Business Class'),
-(3, 'Economy Class');
+(1, 'Business Class'),
+(2, 'Economy Class');
 
 -- --------------------------------------------------------
 
@@ -93,51 +82,48 @@ INSERT INTO `class` (`id`, `name`) VALUES
 DROP TABLE IF EXISTS `flight`;
 CREATE TABLE IF NOT EXISTS `flight` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `airline_id` int(11) NOT NULL,
+  `flight_code_id` int(11) NOT NULL,
   `class_id` int(11) NOT NULL,
-  `airport_origin_id` int(11) NOT NULL,
-  `airport_destination_id` int(11) NOT NULL,
   `capacity` int(11) NOT NULL,
-  `weight_limit` int(11) NOT NULL,
   `price` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `class_fk` (`class_id`),
-  KEY `airport_origin_fk` (`airport_origin_id`),
-  KEY `airport_destination_fk` (`airport_destination_id`),
-  KEY `airline_fk` (`airline_id`)
+  `date` date NOT NULL,
+  `weight` int(11) NOT NULL,
+  `delay` int(11) NOT NULL,
+  `status` tinyint(1) NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `flight`
+--
+
+INSERT INTO `flight` (`id`, `flight_code_id`, `class_id`, `capacity`, `price`, `date`, `weight`, `delay`, `status`) VALUES
+(1, 1, 1, 50, 3000000, '2024-06-12', 30, 0, 1);
+
 -- --------------------------------------------------------
 
 --
--- Table structure for table `gateway`
+-- Table structure for table `flight_code`
 --
 
-DROP TABLE IF EXISTS `gateway`;
-CREATE TABLE IF NOT EXISTS `gateway` (
+DROP TABLE IF EXISTS `flight_code`;
+CREATE TABLE IF NOT EXISTS `flight_code` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` text NOT NULL,
-  `airport_id` int(11) NOT NULL,
+  `flight_code` text NOT NULL,
+  `airport_origin_id` int(11) NOT NULL,
+  `airport_destination_id` int(11) NOT NULL,
+  `start_time` time NOT NULL,
+  `end_time` time NOT NULL,
+  `status` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Table structure for table `reservation`
+-- Dumping data for table `flight_code`
 --
 
-DROP TABLE IF EXISTS `reservation`;
-CREATE TABLE IF NOT EXISTS `reservation` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `customer_name` text NOT NULL,
-  `ticket_id` int(11) NOT NULL,
-  `chair_number_id` int(11) NOT NULL,
-  `gateway_id` int(11) NOT NULL,
-  `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`id`),
-  KEY `ticket_fk` (`ticket_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+INSERT INTO `flight_code` (`id`, `flight_code`, `airport_origin_id`, `airport_destination_id`, `start_time`, `end_time`, `status`) VALUES
+(1, 'GA 208', 2, 5, '11:30:00', '12:50:00', 1);
 
 -- --------------------------------------------------------
 
@@ -148,37 +134,19 @@ CREATE TABLE IF NOT EXISTS `reservation` (
 DROP TABLE IF EXISTS `ticket`;
 CREATE TABLE IF NOT EXISTS `ticket` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `customer_name` text NOT NULL,
   `flight_id` int(11) NOT NULL,
-  `date` date NOT NULL,
-  `start_time` time NOT NULL,
-  `finish_time` time NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `flight_type` (`flight_id`)
+  `status` int(11) NOT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Constraints for dumped tables
+-- Dumping data for table `ticket`
 --
 
---
--- Constraints for table `flight`
---
-ALTER TABLE `flight`
-  ADD CONSTRAINT `airport_destination_fk` FOREIGN KEY (`airport_destination_id`) REFERENCES `airport` (`id`) ON UPDATE CASCADE,
-  ADD CONSTRAINT `airport_origin_fk` FOREIGN KEY (`airport_origin_id`) REFERENCES `airport` (`id`) ON UPDATE CASCADE,
-  ADD CONSTRAINT `class_fk` FOREIGN KEY (`class_id`) REFERENCES `class` (`id`) ON UPDATE CASCADE;
-
---
--- Constraints for table `reservation`
---
-ALTER TABLE `reservation`
-  ADD CONSTRAINT `ticket_fk` FOREIGN KEY (`ticket_id`) REFERENCES `ticket` (`id`) ON UPDATE CASCADE;
-
---
--- Constraints for table `ticket`
---
-ALTER TABLE `ticket`
-  ADD CONSTRAINT `flight_type` FOREIGN KEY (`flight_id`) REFERENCES `flight` (`id`) ON UPDATE CASCADE;
+INSERT INTO `ticket` (`id`, `customer_name`, `flight_id`, `status`, `timestamp`) VALUES
+(1, 'Mr. Adi', 1, 1, '2024-06-10 08:26:46');
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
