@@ -24,7 +24,7 @@ class AirlineService:
         return object
 
     @rpc
-    def get_ticket(self, customer_name):
-        object = self.database.get_ticket(customer_name)
+    def get_ticket(self, customer_name, date):
+        object = self.database.get_ticket(customer_name, date)
         return object
     
