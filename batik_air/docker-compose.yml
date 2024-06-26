@@ -17,6 +17,7 @@ services:
       MYSQL_DATABASE: "batik_air"
       MYSQL_ROOT_PASSWORD: "password"
     volumes:
+      - mysql_data:/var/lib/mysql
       - ./mysql-init:/docker-entrypoint-initdb.d
     restart: always
 
@@ -59,3 +60,7 @@ services:
       RABBIT_PASSWORD: "guest"
       RABBIT_MANAGEMENT_PORT: "15672"
     restart: always
+
+volumes:
+  mysql_data:
+    driver: local
