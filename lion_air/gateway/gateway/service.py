@@ -51,3 +51,7 @@ class GatewayService:
         else:
             return 400, json.dumps(object)
         
+    @http('OPTIONS', '/user')
+    def options_user(self, request):
+        return 200, self.header, ""
+    
