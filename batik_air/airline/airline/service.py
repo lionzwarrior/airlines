@@ -22,11 +22,11 @@ class AirlineService:
         return object
 
     @rpc
-    def post_ticket(self, customer_name, flight_code, date):
-        object = self.database.post_ticket(customer_name, flight_code, date)
+    def post_ticket(self, customer_name, flight_code, date, class_name):
+        object = self.database.post_ticket(customer_name, flight_code, date, class_name)
         return object
-
+    
     @rpc
-    def get_ticket(self, customer_name, date):
-        object = self.database.get_ticket(customer_name, date)
+    def get_ticket(self, customer_name):
+        object = self.database.get_ticket(customer_name)
         return object
