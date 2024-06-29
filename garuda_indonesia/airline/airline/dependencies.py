@@ -106,6 +106,7 @@ class DatabaseWrapper:
             result = cursor.fetchone()
             if result['count'] > 0:
                 sql = f"INSERT INTO `ticket`(`customer_name`, `flight_id`, `status`) SELECT '{customer_name}', f.id, 1 FROM flight f INNER JOIN flight_code fc ON f.flight_code_id = fc.id INNER JOIN class c ON f.class_id = c.id WHERE fc.flight_code = '{flight_code}' and f.date = '{date}' and c.name = '{class_name}';"
+                cursor.execute(sql)
                 self.connection.commit()
                 response = {
                     "status": "success",
